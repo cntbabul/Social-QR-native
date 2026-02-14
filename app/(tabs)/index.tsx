@@ -8,6 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { captureRef } from 'react-native-view-shot';
 
 
+import { LinearGradient } from 'expo-linear-gradient';
 import React, { useRef, useState } from 'react';
 import { Alert, Keyboard, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 
@@ -246,341 +247,497 @@ export default function SocialScreen() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <View style={styles.container}>
+            <LinearGradient
+                colors={['#0F0C29', '#302B63', '#24243E']}
+                style={StyleSheet.absoluteFillObject}
+            />
             <StatusBar barStyle="light-content" />
-            <ScrollView
-                ref={scrollViewRef}
-                style={{ flex: 1 }}
-                contentContainerStyle={styles.scrollContent}
-                keyboardShouldPersistTaps="handled"
-                keyboardDismissMode="on-drag"
-            >
-                <Text style={styles.title}>Social QR</Text>
-                <Text style={styles.subtitle}>{getSubtitle()}</Text>
-
-                <View style={styles.modeSelectorContainer}>
-                    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.modeSelectorScroll}>
-                        {[
-                            { id: 'whatsapp', icon: 'whatsapp', label: 'WhatsApp' },
-                            { id: 'instagram', icon: 'instagram', label: 'Instagram' },
-
-                            { id: 'twitter', icon: 'twitter', label: 'Twitter/X' },
-                            { id: 'linkedin', icon: 'linkedin', label: 'LinkedIn' },
-                            { id: 'github', icon: 'github', label: 'GitHub' },
-                            { id: 'facebook', icon: 'facebook', label: 'Facebook' },
-                            { id: 'email', icon: 'email', label: 'Email' },
-                        ].map((mode) => (
-                            <TouchableOpacity
-                                key={mode.id}
-                                style={[styles.modeButton, socialMode === mode.id && styles.modeButtonActive]}
-                                onPress={() => { setSocialMode(mode.id as any); setQrValue(""); }}
-                            >
-                                <MaterialCommunityIcons
-                                    name={mode.icon as any}
-                                    size={20}
-                                    color={socialMode === mode.id ? "#FFF" : "#8E8E93"}
-                                />
-                                <Text style={[styles.modeText, socialMode === mode.id && styles.modeTextActive]}>
-                                    {mode.label}
-                                </Text>
-                            </TouchableOpacity>
-                        ))}
-                    </ScrollView>
-                </View>
-
-                <View style={styles.card}>
-                    {socialMode === 'whatsapp' ? (
-                        <>
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>COUNTRY CODE</Text>
-                                <View style={styles.pickerWrapper}>
-                                    <Picker
-                                        selectedValue={countryCode}
-                                        onValueChange={(itemValue) => setCountryCode(itemValue)}
-                                        style={styles.picker}
-                                        dropdownIconColor="#FFF"
-                                        itemStyle={{ color: '#FFF' }}
-                                        mode="dropdown"
-                                    >
-                                        {COUNTRY_CODES.map((code) => (
-                                            <Picker.Item key={code.value} label={code.label} value={code.value} color="#000" />
-                                        ))}
-                                    </Picker>
-                                </View>
-                            </View>
-
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>PHONE NUMBER</Text>
-                                <View style={styles.inputWrapper}>
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="Enter phone number"
-                                        placeholderTextColor="#666"
-                                        value={phoneNumber}
-                                        onChangeText={setPhoneNumber}
-                                        keyboardType="phone-pad"
-                                    />
-                                    {phoneNumber.length > 0 && (
-                                        <TouchableOpacity onPress={() => setPhoneNumber('')} style={styles.clearButton}>
-                                            <MaterialCommunityIcons name="close-circle" size={20} color="#666" />
-                                        </TouchableOpacity>
-                                    )}
-                                </View>
-                            </View>
-                        </>
-
-                    ) : socialMode === 'instagram' ? (
-                        <>
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>INSTAGRAM USERNAME</Text>
-                                <View style={styles.inputWrapper}>
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="@username"
-                                        placeholderTextColor="#666"
-                                        value={instagramUsername}
-                                        onChangeText={setInstagramUsername}
-                                        autoCapitalize="none"
-                                    />
-                                </View>
-                            </View>
-                        </>
-                    ) : socialMode === 'twitter' ? (
-                        <>
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>TWITTER/X HANDLE</Text>
-                                <View style={styles.inputWrapper}>
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="@handle"
-                                        placeholderTextColor="#666"
-                                        value={twitterHandle}
-                                        onChangeText={setTwitterHandle}
-                                        autoCapitalize="none"
-                                    />
-                                </View>
-                            </View>
-                        </>
-                    ) : socialMode === 'linkedin' ? (
-                        <>
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>LINKEDIN PROFILE ID</Text>
-                                <View style={styles.inputWrapper}>
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="e.g. john-doe-123"
-                                        placeholderTextColor="#666"
-                                        value={linkedinProfile}
-                                        onChangeText={setLinkedinProfile}
-                                        autoCapitalize="none"
-                                    />
-                                </View>
-                            </View>
-                        </>
-                    ) : socialMode === 'github' ? (
-                        <>
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>GITHUB USERNAME</Text>
-                                <View style={styles.inputWrapper}>
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="username"
-                                        placeholderTextColor="#666"
-                                        value={githubUsername}
-                                        onChangeText={setGithubUsername}
-                                        autoCapitalize="none"
-                                    />
-                                </View>
-                            </View>
-                        </>
-                    ) : socialMode === 'facebook' ? (
-                        <>
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>FACEBOOK PROFILE ID/NAME</Text>
-                                <View style={styles.inputWrapper}>
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="username or id"
-                                        placeholderTextColor="#666"
-                                        value={facebookProfile}
-                                        onChangeText={setFacebookProfile}
-                                        autoCapitalize="none"
-                                    />
-                                </View>
-                            </View>
-                        </>
-                    ) : (
-                        <>
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>EMAIL ADDRESS</Text>
-                                <View style={styles.inputWrapper}>
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="name@example.com"
-                                        placeholderTextColor="#666"
-                                        value={emailAddress}
-                                        onChangeText={setEmailAddress}
-                                        keyboardType="email-address"
-                                        autoCapitalize="none"
-                                    />
-                                    {emailAddress.length > 0 && (
-                                        <TouchableOpacity onPress={() => setEmailAddress('')} style={styles.clearButton}>
-                                            <MaterialCommunityIcons name="close-circle" size={20} color="#666" />
-                                        </TouchableOpacity>
-                                    )}
-                                </View>
-                            </View>
-
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>SUBJECT (OPTIONAL)</Text>
-                                <View style={styles.inputWrapper}>
-                                    <TextInput
-                                        style={styles.input}
-                                        placeholder="Enter subject"
-                                        placeholderTextColor="#666"
-                                        value={emailSubject}
-                                        onChangeText={setEmailSubject}
-                                    />
-                                </View>
-                            </View>
-
-                            <View style={styles.inputGroup}>
-                                <Text style={styles.label}>BODY (OPTIONAL)</Text>
-                                <View style={[styles.inputWrapper, { height: 100, alignItems: 'flex-start' }]}>
-                                    <TextInput
-                                        style={[styles.input, { height: 100, textAlignVertical: 'top' }]}
-                                        placeholder="Enter email content..."
-                                        placeholderTextColor="#666"
-                                        value={emailBody}
-                                        onChangeText={setEmailBody}
-                                        multiline
-                                    />
-                                </View>
-                            </View>
-                        </>
-                    )}
-
-                    <View style={styles.inputGroup}>
-                        <Text style={styles.label}>CUSTOM MESSAGE (OPTIONAL)</Text>
-                        <View style={styles.inputWrapper}>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Enter custom message..."
-                                placeholderTextColor="#666"
-                                value={customMessage}
-                                onChangeText={setCustomMessage}
-                            />
-                        </View>
-                    </View>
-
-                    <TouchableOpacity
-                        onPress={handleGenerate}
-                        style={[
-                            styles.generateButton,
-                            { backgroundColor: getButtonColor() }
-                        ]}
-                    >
-                        <MaterialCommunityIcons
-                            name={getButtonIcon() as any}
-                            size={24} color="#FFF"
-                        />
-                        <Text style={styles.buttonText}>Generate {socialMode.charAt(0).toUpperCase() + socialMode.slice(1)} QR</Text>
-                    </TouchableOpacity>
-                </View>
-
-                {qrValue ? (
-                    <View style={styles.resultCard}>
-                        <View
-                            ref={captureViewRef}
-                            style={styles.qrCaptureContainer}
-                            collapsable={false}
+            <SafeAreaView style={{ flex: 1 }}>
+                <ScrollView
+                    ref={scrollViewRef}
+                    style={{ flex: 1 }}
+                    contentContainerStyle={styles.scrollContent}
+                    keyboardShouldPersistTaps="handled"
+                    keyboardDismissMode="on-drag"
+                    showsVerticalScrollIndicator={false}
+                >
+                    {/* Header with Gradient Text Effect */}
+                    <View style={styles.headerContainer}>
+                        <LinearGradient
+                            colors={['#667EEA', '#764BA2', '#F093FB']}
+                            start={{ x: 0, y: 0 }}
+                            end={{ x: 1, y: 1 }}
+                            style={styles.titleGradient}
                         >
-                            {customMessage ? (
-                                <Text style={styles.customMessageText}>{customMessage}</Text>
-                            ) : null}
-                            <QRCode
-                                value={qrValue}
-                                size={200}
-                                backgroundColor="white"
-                                color="black"
-                                getRef={(ref) => (qrRef.current = ref)}
-                            />
-                            <Text style={styles.captureText}>
-                                {socialMode === 'whatsapp' ? `WhatsApp: +${countryCode} ${phoneNumber}` :
-                                    socialMode === 'instagram' ? `IG: @${instagramUsername.replace('@', '')}` :
-                                        socialMode === 'twitter' ? `X: @${twitterHandle.replace('@', '')}` :
-                                            socialMode === 'linkedin' ? `LinkedIn: ${linkedinProfile}` :
-                                                socialMode === 'github' ? `GitHub: ${githubUsername}` :
-                                                    socialMode === 'facebook' ? `FB: ${facebookProfile}` :
+                            <Text style={styles.title}>Social QR Generator</Text>
+                        </LinearGradient>
+                        <Text style={styles.subtitle}>{getSubtitle()}</Text>
+                    </View>
 
-                                                        `Email: ${emailAddress}`}
-                            </Text>
-                        </View>
-                        <Text style={styles.qrLabel}>Ready to Share</Text>
+                    {/* Mode Selector with Glassmorphism */}
+                    <View style={styles.modeSelectorContainer}>
+                        <ScrollView
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            contentContainerStyle={styles.modeSelectorScroll}
+                        >
+                            {[
+                                { id: 'whatsapp', icon: 'whatsapp', label: 'WhatsApp', gradient: ['#25D366', '#128C7E'] as const },
+                                { id: 'instagram', icon: 'instagram', label: 'Instagram', gradient: ['#F58529', '#DD2A7B', '#8134AF'] as const },
+                                { id: 'twitter', icon: 'twitter', label: 'Twitter/X', gradient: ['#1DA1F2', '#0E71C8'] as const },
+                                { id: 'linkedin', icon: 'linkedin', label: 'LinkedIn', gradient: ['#0077B5', '#005885'] as const },
+                                { id: 'github', icon: 'github', label: 'GitHub', gradient: ['#333', '#24292E'] as const },
+                                { id: 'facebook', icon: 'facebook', label: 'Facebook', gradient: ['#1877F2', '#0C63D4'] as const },
+                                { id: 'email', icon: 'email', label: 'Email', gradient: ['#EA4335', '#C5221F'] as const },
+                            ].map((mode) => (
+                                <TouchableOpacity
+                                    key={mode.id}
+                                    activeOpacity={0.8}
+                                    onPress={() => { setSocialMode(mode.id as any); setQrValue(""); }}
+                                >
+                                    {socialMode === mode.id ? (
+                                        <LinearGradient
+                                            colors={mode.gradient}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 1 }}
+                                            style={styles.modeButtonActive}
+                                        >
+                                            <MaterialCommunityIcons
+                                                name={mode.icon as any}
+                                                size={22}
+                                                color="#FFF"
+                                            />
+                                            <Text style={styles.modeTextActive}>
+                                                {mode.label}
+                                            </Text>
+                                        </LinearGradient>
+                                    ) : (
+                                        <View style={styles.modeButton}>
+                                            <MaterialCommunityIcons
+                                                name={mode.icon as any}
+                                                size={22}
+                                                color="#A0A0A0"
+                                            />
+                                            <Text style={styles.modeText}>
+                                                {mode.label}
+                                            </Text>
+                                        </View>
+                                    )}
+                                </TouchableOpacity>
+                            ))}
+                        </ScrollView>
+                    </View>
 
-                        <View style={styles.actionButtonsContainer}>
-                            <TouchableOpacity onPress={downloadQRCode} style={styles.actionButton}>
-                                <MaterialCommunityIcons name="share-variant" size={20} color="#FFF" />
-                                <Text style={styles.buttonText}>Share</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity onPress={saveToGallery} style={[styles.actionButton, styles.saveButton]}>
-                                <MaterialCommunityIcons name="download" size={20} color="#FFF" />
-                                <Text style={styles.buttonText}>Save</Text>
+                    {/* Glassmorphic Input Card */}
+                    <View style={styles.card}>
+                        <View style={styles.cardGlass} />
+                        <View style={styles.cardContent}>
+                            {socialMode === 'whatsapp' ? (
+                                <>
+                                    <View style={styles.inputGroup}>
+                                        <Text style={styles.label}>
+                                            <MaterialCommunityIcons name="earth" size={14} color="#A0A0FF" /> COUNTRY CODE
+                                        </Text>
+                                        <View style={styles.pickerWrapper}>
+                                            <Picker
+                                                selectedValue={countryCode}
+                                                onValueChange={(itemValue) => setCountryCode(itemValue)}
+                                                style={styles.picker}
+                                                dropdownIconColor="#FFF"
+                                                itemStyle={{ color: '#FFF' }}
+                                                mode="dropdown"
+                                            >
+                                                {COUNTRY_CODES.map((code) => (
+                                                    <Picker.Item key={code.value} label={code.label} value={code.value} color="#000" />
+                                                ))}
+                                            </Picker>
+                                        </View>
+                                    </View>
+
+                                    <View style={styles.inputGroup}>
+                                        <Text style={styles.label}>
+                                            <MaterialCommunityIcons name="phone" size={14} color="#A0A0FF" /> PHONE NUMBER
+                                        </Text>
+                                        <View style={styles.inputWrapper}>
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="Enter phone number"
+                                                placeholderTextColor="#888"
+                                                value={phoneNumber}
+                                                onChangeText={setPhoneNumber}
+                                                keyboardType="phone-pad"
+                                            />
+                                            {phoneNumber.length > 0 && (
+                                                <TouchableOpacity onPress={() => setPhoneNumber('')} style={styles.clearButton}>
+                                                    <MaterialCommunityIcons name="close-circle" size={20} color="#888" />
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
+                                    </View>
+                                </>
+
+                            ) : socialMode === 'instagram' ? (
+                                <View style={styles.inputGroup}>
+                                    <Text style={styles.label}>
+                                        <MaterialCommunityIcons name="instagram" size={14} color="#F093FB" /> INSTAGRAM USERNAME
+                                    </Text>
+                                    <View style={styles.inputWrapper}>
+                                        <TextInput
+                                            style={styles.input}
+                                            placeholder="@username"
+                                            placeholderTextColor="#888"
+                                            value={instagramUsername}
+                                            onChangeText={setInstagramUsername}
+                                            autoCapitalize="none"
+                                        />
+                                    </View>
+                                </View>
+                            ) : socialMode === 'twitter' ? (
+                                <View style={styles.inputGroup}>
+                                    <Text style={styles.label}>
+                                        <MaterialCommunityIcons name="twitter" size={14} color="#1DA1F2" /> TWITTER/X HANDLE
+                                    </Text>
+                                    <View style={styles.inputWrapper}>
+                                        <TextInput
+                                            style={styles.input}
+                                            placeholder="@handle"
+                                            placeholderTextColor="#888"
+                                            value={twitterHandle}
+                                            onChangeText={setTwitterHandle}
+                                            autoCapitalize="none"
+                                        />
+                                    </View>
+                                </View>
+                            ) : socialMode === 'linkedin' ? (
+                                <View style={styles.inputGroup}>
+                                    <Text style={styles.label}>
+                                        <MaterialCommunityIcons name="linkedin" size={14} color="#0077B5" /> LINKEDIN PROFILE ID
+                                    </Text>
+                                    <View style={styles.inputWrapper}>
+                                        <TextInput
+                                            style={styles.input}
+                                            placeholder="e.g. john-doe-123"
+                                            placeholderTextColor="#888"
+                                            value={linkedinProfile}
+                                            onChangeText={setLinkedinProfile}
+                                            autoCapitalize="none"
+                                        />
+                                    </View>
+                                </View>
+                            ) : socialMode === 'github' ? (
+                                <View style={styles.inputGroup}>
+                                    <Text style={styles.label}>
+                                        <MaterialCommunityIcons name="github" size={14} color="#FFF" /> GITHUB USERNAME
+                                    </Text>
+                                    <View style={styles.inputWrapper}>
+                                        <TextInput
+                                            style={styles.input}
+                                            placeholder="username"
+                                            placeholderTextColor="#888"
+                                            value={githubUsername}
+                                            onChangeText={setGithubUsername}
+                                            autoCapitalize="none"
+                                        />
+                                    </View>
+                                </View>
+                            ) : socialMode === 'facebook' ? (
+                                <View style={styles.inputGroup}>
+                                    <Text style={styles.label}>
+                                        <MaterialCommunityIcons name="facebook" size={14} color="#1877F2" /> FACEBOOK PROFILE ID/NAME
+                                    </Text>
+                                    <View style={styles.inputWrapper}>
+                                        <TextInput
+                                            style={styles.input}
+                                            placeholder="username or id"
+                                            placeholderTextColor="#888"
+                                            value={facebookProfile}
+                                            onChangeText={setFacebookProfile}
+                                            autoCapitalize="none"
+                                        />
+                                    </View>
+                                </View>
+                            ) : (
+                                <>
+                                    <View style={styles.inputGroup}>
+                                        <Text style={styles.label}>
+                                            <MaterialCommunityIcons name="email" size={14} color="#EA4335" /> EMAIL ADDRESS
+                                        </Text>
+                                        <View style={styles.inputWrapper}>
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="name@example.com"
+                                                placeholderTextColor="#888"
+                                                value={emailAddress}
+                                                onChangeText={setEmailAddress}
+                                                keyboardType="email-address"
+                                                autoCapitalize="none"
+                                            />
+                                            {emailAddress.length > 0 && (
+                                                <TouchableOpacity onPress={() => setEmailAddress('')} style={styles.clearButton}>
+                                                    <MaterialCommunityIcons name="close-circle" size={20} color="#888" />
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
+                                    </View>
+
+                                    <View style={styles.inputGroup}>
+                                        <Text style={styles.label}>
+                                            <MaterialCommunityIcons name="format-title" size={14} color="#A0A0FF" /> SUBJECT (OPTIONAL)
+                                        </Text>
+                                        <View style={styles.inputWrapper}>
+                                            <TextInput
+                                                style={styles.input}
+                                                placeholder="Enter subject"
+                                                placeholderTextColor="#888"
+                                                value={emailSubject}
+                                                onChangeText={setEmailSubject}
+                                            />
+                                        </View>
+                                    </View>
+
+                                    <View style={styles.inputGroup}>
+                                        <Text style={styles.label}>
+                                            <MaterialCommunityIcons name="text" size={14} color="#A0A0FF" /> BODY (OPTIONAL)
+                                        </Text>
+                                        <View style={[styles.inputWrapper, { height: 100, alignItems: 'flex-start' }]}>
+                                            <TextInput
+                                                style={[styles.input, { height: 100, textAlignVertical: 'top', paddingTop: 12 }]}
+                                                placeholder="Enter email content..."
+                                                placeholderTextColor="#888"
+                                                value={emailBody}
+                                                onChangeText={setEmailBody}
+                                                multiline
+                                            />
+                                        </View>
+                                    </View>
+                                </>
+                            )}
+
+                            <View style={styles.inputGroup}>
+                                <Text style={styles.label}>
+                                    <MaterialCommunityIcons name="message-text" size={14} color="#F093FB" /> CUSTOM MESSAGE (OPTIONAL)
+                                </Text>
+                                <View style={styles.inputWrapper}>
+                                    <TextInput
+                                        style={styles.input}
+                                        placeholder="Enter custom message..."
+                                        placeholderTextColor="#888"
+                                        value={customMessage}
+                                        onChangeText={setCustomMessage}
+                                    />
+                                </View>
+                            </View>
+
+                            <TouchableOpacity
+                                onPress={handleGenerate}
+                                activeOpacity={0.9}
+                            >
+                                <LinearGradient
+                                    colors={
+                                        socialMode === 'whatsapp' ? ['#25D366', '#128C7E'] :
+                                            socialMode === 'instagram' ? ['#F58529', '#DD2A7B', '#8134AF'] :
+                                                socialMode === 'twitter' ? ['#1DA1F2', '#0E71C8'] :
+                                                    socialMode === 'linkedin' ? ['#0077B5', '#005885'] :
+                                                        socialMode === 'github' ? ['#333', '#24292E'] :
+                                                            socialMode === 'facebook' ? ['#1877F2', '#0C63D4'] :
+                                                                ['#EA4335', '#C5221F']
+                                    }
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                    style={styles.generateButton}
+                                >
+                                    <MaterialCommunityIcons
+                                        name={getButtonIcon() as any}
+                                        size={24}
+                                        color="#FFF"
+                                    />
+                                    <Text style={styles.buttonText}>
+                                        Generate {socialMode.charAt(0).toUpperCase() + socialMode.slice(1)} QR
+                                    </Text>
+                                </LinearGradient>
                             </TouchableOpacity>
                         </View>
                     </View>
-                ) : (
-                    <View style={styles.placeholderContainer}>
-                        <MaterialCommunityIcons name="message-text-outline" size={80} color="#333" />
-                        <Text style={styles.placeholderText}>Enter details to create QR</Text>
-                    </View>
-                )}
-            </ScrollView>
-        </SafeAreaView>
+
+                    {/* QR Code Result with Premium Styling */}
+                    {qrValue ? (
+                        <View style={styles.resultCard}>
+                            <View style={styles.cardGlass} />
+                            <View style={styles.cardContent}>
+                                <View
+                                    ref={captureViewRef}
+                                    style={styles.qrCaptureContainer}
+                                    collapsable={false}
+                                >
+                                    {customMessage ? (
+                                        <Text style={styles.customMessageText}>{customMessage}</Text>
+                                    ) : null}
+                                    <View style={styles.qrWrapper}>
+                                        <QRCode
+                                            value={qrValue}
+                                            size={200}
+                                            backgroundColor="white"
+                                            color="black"
+                                            getRef={(ref) => (qrRef.current = ref)}
+                                        />
+                                    </View>
+                                    <Text style={styles.captureText}>
+                                        {socialMode === 'whatsapp' ? `WhatsApp: +${countryCode} ${phoneNumber}` :
+                                            socialMode === 'instagram' ? `IG: @${instagramUsername.replace('@', '')}` :
+                                                socialMode === 'twitter' ? `X: @${twitterHandle.replace('@', '')}` :
+                                                    socialMode === 'linkedin' ? `LinkedIn: ${linkedinProfile}` :
+                                                        socialMode === 'github' ? `GitHub: ${githubUsername}` :
+                                                            socialMode === 'facebook' ? `FB: ${facebookProfile}` :
+                                                                `Email: ${emailAddress}`}
+                                    </Text>
+                                </View>
+
+                                <LinearGradient
+                                    colors={['#667EEA', '#764BA2']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 0 }}
+                                    style={styles.qrLabelGradient}
+                                >
+                                    <MaterialCommunityIcons name="check-circle" size={20} color="#FFF" />
+                                    <Text style={styles.qrLabel}>Ready to Share</Text>
+                                </LinearGradient>
+
+                                <View style={styles.actionButtonsContainer}>
+                                    <TouchableOpacity onPress={downloadQRCode} activeOpacity={0.9} style={{ flex: 1 }}>
+                                        <LinearGradient
+                                            colors={['#667EEA', '#764BA2']}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 1 }}
+                                            style={styles.actionButton}
+                                        >
+                                            <MaterialCommunityIcons name="share-variant" size={22} color="#FFF" />
+                                            <Text style={styles.buttonText}>Share</Text>
+                                        </LinearGradient>
+                                    </TouchableOpacity>
+                                    <TouchableOpacity onPress={saveToGallery} activeOpacity={0.9} style={{ flex: 1 }}>
+                                        <LinearGradient
+                                            colors={['#F093FB', '#F5576C']}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 1 }}
+                                            style={styles.actionButton}
+                                        >
+                                            <MaterialCommunityIcons name="download" size={22} color="#FFF" />
+                                            <Text style={styles.buttonText}>Save</Text>
+                                        </LinearGradient>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    ) : (
+                        <View style={styles.placeholderContainer}>
+                            <View style={styles.placeholderGlow}>
+                                <MaterialCommunityIcons name="qrcode-scan" size={100} color="#667EEA" />
+                            </View>
+                            <Text style={styles.placeholderText}>Enter details above to generate your QR code</Text>
+                            <Text style={styles.placeholderSubtext}>Share your social profiles instantly</Text>
+                        </View>
+                    )}
+                </ScrollView>
+            </SafeAreaView>
+        </View>
     );
 };
+
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#121212', // Dark background
     },
     scrollContent: {
         padding: 20,
+        paddingBottom: 40,
+    },
+    headerContainer: {
         alignItems: 'center',
+        marginBottom: 24,
+        marginTop: 10,
+    },
+    titleGradient: {
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderRadius: 20,
+        marginBottom: 12,
     },
     title: {
-        fontSize: 28,
-        fontWeight: 'bold',
+        fontSize: 32,
+        fontWeight: '800',
         color: '#FFFFFF',
-        marginTop: 10,
-        marginBottom: 8,
-        letterSpacing: 1,
+        textAlign: 'center',
+        letterSpacing: 0.5,
+        textShadowColor: 'rgba(0, 0, 0, 0.3)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 4,
     },
     subtitle: {
-        fontSize: 14,
-        color: '#8E8E93',
-        marginBottom: 20,
-        letterSpacing: 0.5,
+        fontSize: 15,
+        color: '#B8B8D1',
+        letterSpacing: 0.8,
+        fontWeight: '500',
     },
     modeSelectorContainer: {
-        height: 60,
-        marginBottom: 20,
-        width: '100%',
+        marginBottom: 24,
     },
     modeSelectorScroll: {
+        gap: 12,
         paddingHorizontal: 4,
+    },
+    modeButton: {
+        flexDirection: 'row',
         alignItems: 'center',
-        gap: 10,
+        justifyContent: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 18,
+        borderRadius: 16,
+        gap: 8,
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+        borderWidth: 1,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+    },
+    modeButtonActive: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        paddingHorizontal: 18,
+        borderRadius: 16,
+        gap: 8,
+        shadowColor: '#667EEA',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.4,
+        shadowRadius: 8,
+        elevation: 8,
+    },
+    modeText: {
+        fontSize: 14,
+        fontWeight: '600',
+        color: '#A0A0A0',
+    },
+    modeTextActive: {
+        fontSize: 14,
+        fontWeight: '700',
+        color: '#FFFFFF',
     },
     card: {
         width: '100%',
-        backgroundColor: '#1E1E1E', // Card background
-        borderRadius: 20,
-        padding: 24,
+        borderRadius: 24,
         marginBottom: 24,
+        overflow: 'hidden',
+    },
+    cardGlass: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         borderWidth: 1,
-        borderColor: '#2C2C2E',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderRadius: 24,
+    },
+    cardContent: {
+        padding: 24,
     },
     inputGroup: {
         marginBottom: 20,
@@ -588,37 +745,38 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 12,
         fontWeight: '700',
-        color: '#8E8E93',
+        color: '#B8B8D1',
         marginBottom: 10,
-        letterSpacing: 1,
+        letterSpacing: 1.2,
         textTransform: 'uppercase',
     },
     pickerWrapper: {
-        borderWidth: 1,
-        borderColor: '#2C2C2E',
-        borderRadius: 12,
-        backgroundColor: '#2C2C2E',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        borderRadius: 14,
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
         overflow: 'hidden',
     },
     picker: {
-        height: 50,
+        height: 54,
         width: '100%',
-        color: '#FFFFFF', // For Android text color
+        color: '#FFFFFF',
     },
     inputWrapper: {
         flexDirection: 'row',
         alignItems: 'center',
-        borderWidth: 1,
-        borderColor: 'transparent',
-        borderRadius: 12,
-        backgroundColor: '#2C2C2E',
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        borderRadius: 14,
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
         paddingHorizontal: 16,
     },
     input: {
         flex: 1,
-        height: 50,
+        height: 54,
         fontSize: 16,
         color: '#FFFFFF',
+        fontWeight: '500',
     },
     clearButton: {
         padding: 8,
@@ -626,117 +784,125 @@ const styles = StyleSheet.create({
     generateButton: {
         width: '100%',
         flexDirection: 'row',
-        backgroundColor: '#25D366', // WhatsApp Green
+        paddingVertical: 18,
+        borderRadius: 16,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+        shadowColor: '#667EEA',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
+        elevation: 10,
+        marginTop: 8,
+    },
+    buttonText: {
+        color: '#FFFFFF',
+        fontSize: 16,
+        fontWeight: '700',
+        letterSpacing: 0.5,
+    },
+    resultCard: {
+        width: '100%',
+        borderRadius: 24,
+        overflow: 'hidden',
+        marginBottom: 24,
+    },
+    qrCaptureContainer: {
+        padding: 28,
+        backgroundColor: '#FFFFFF',
+        borderRadius: 20,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    qrWrapper: {
+        padding: 12,
+        backgroundColor: '#FFF',
+        borderRadius: 16,
+        shadowColor: '#667EEA',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
+    },
+    captureText: {
+        marginTop: 18,
+        fontSize: 15,
+        fontWeight: '700',
+        color: '#1A1A2E',
+        letterSpacing: 0.3,
+    },
+    qrLabelGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 12,
+        marginVertical: 20,
+    },
+    qrLabel: {
+        fontSize: 16,
+        color: '#FFFFFF',
+        fontWeight: '700',
+        letterSpacing: 0.5,
+    },
+    placeholderContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 60,
+        paddingHorizontal: 40,
+    },
+    placeholderGlow: {
+        padding: 30,
+        borderRadius: 100,
+        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+        marginBottom: 24,
+    },
+    placeholderText: {
+        marginTop: 16,
+        fontSize: 17,
+        color: '#B8B8D1',
+        fontWeight: '600',
+        textAlign: 'center',
+        letterSpacing: 0.3,
+    },
+    placeholderSubtext: {
+        marginTop: 8,
+        fontSize: 14,
+        color: '#8E8EA0',
+        fontWeight: '500',
+        textAlign: 'center',
+    },
+    actionButtonsContainer: {
+        flexDirection: 'row',
+        gap: 14,
+        width: '100%',
+    },
+    actionButton: {
+        flexDirection: 'row',
         paddingVertical: 16,
         borderRadius: 14,
         alignItems: 'center',
         justifyContent: 'center',
         gap: 10,
-        shadowColor: "#25D366",
+        shadowColor: '#667EEA',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.3,
         shadowRadius: 8,
-        elevation: 4,
-        marginTop: 10,
-    },
-    buttonText: {
-        color: '#FFFFFF',
-        fontSize: 16,
-        fontWeight: '600',
-        letterSpacing: 0.5,
-    },
-    resultCard: {
-        width: '100%',
-        alignItems: 'center',
-        backgroundColor: '#1E1E1E',
-        borderRadius: 24,
-        padding: 24,
-        borderWidth: 1,
-        borderColor: '#2C2C2E',
-    },
-    modeSelector: { // Kept for backward compatibility if needed, but overridden by container
-        flexDirection: 'row',
-    },
-    modeButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        paddingVertical: 10,
-        paddingHorizontal: 16,
-        borderRadius: 20,
-        gap: 8,
-        backgroundColor: '#1E1E1E',
-        borderWidth: 1,
-        borderColor: '#2C2C2E',
-    },
-    modeButtonActive: {
-        backgroundColor: '#323232',
-        borderColor: '#4A90E2',
-    },
-    modeText: {
-        fontSize: 14,
-        fontWeight: '600',
-        color: '#8E8E93',
-    },
-    modeTextActive: {
-        color: '#FFFFFF',
-    },
-    qrCaptureContainer: {
-        padding: 24,
-        backgroundColor: '#FFFFFF',
-        borderRadius: 16,
-        marginBottom: 20,
-        alignItems: 'center',
-    },
-    captureText: {
-        marginTop: 16,
-        fontSize: 16,
-        fontWeight: 'bold',
-        color: '#000000',
-    },
-    qrLabel: {
-        fontSize: 18,
-        color: '#FFFFFF',
-        fontWeight: '600',
-        marginBottom: 20,
-    },
-    placeholderContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        opacity: 0.5,
-        marginTop: 20,
-    },
-    placeholderText: {
-        marginTop: 16,
-        fontSize: 16,
-        color: '#8E8E93',
-    },
-    actionButtonsContainer: {
-        flexDirection: 'row',
-        gap: 12,
-        width: '100%',
-    },
-    actionButton: {
-        flex: 1,
-        flexDirection: 'row',
-        backgroundColor: '#323232',
-        paddingVertical: 12,
-        borderRadius: 12,
-        alignItems: 'center',
-        justifyContent: 'center',
-        gap: 8,
-        borderWidth: 1,
-        borderColor: '#444',
-    },
-    saveButton: {
-        backgroundColor: '#4A90E2', // Blue for Save
-        borderColor: '#4A90E2',
+        elevation: 6,
     },
     customMessageText: {
-        marginBottom: 12,
+        marginBottom: 16,
         fontSize: 18,
-        fontWeight: 'bold',
-        color: '#000',
+        fontWeight: '700',
+        color: '#1A1A2E',
         textAlign: 'center',
+        letterSpacing: 0.3,
     },
 });
+

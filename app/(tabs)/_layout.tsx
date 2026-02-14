@@ -1,5 +1,7 @@
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { LinearGradient } from 'expo-linear-gradient';
 import { Tabs } from "expo-router";
+import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const TabLayout = () => {
@@ -7,20 +9,28 @@ const TabLayout = () => {
     return (
         <Tabs
             screenOptions={{
-                tabBarActiveTintColor: "#4A90E2", // Modern Blue
-                tabBarInactiveTintColor: "#8E8E93", // Grey
+                tabBarActiveTintColor: "#FFFFFF",
+                tabBarInactiveTintColor: "#8E8EA0",
                 tabBarStyle: {
-                    backgroundColor: "#121212", // Dark Background
+                    backgroundColor: "#0F0C29",
                     borderTopWidth: 0,
                     height: 60 + insets.bottom,
                     paddingTop: 8,
                     paddingBottom: insets.bottom + 8,
                     elevation: 0,
                     shadowOpacity: 0,
+                    position: 'absolute',
                 },
+                tabBarBackground: () => (
+                    <LinearGradient
+                        colors={['#1A1A2E', '#16213E', '#0F0C29']}
+                        style={StyleSheet.absoluteFill}
+                    />
+                ),
                 tabBarLabelStyle: {
-                    fontWeight: "600",
-                    fontSize: 12,
+                    fontWeight: "700",
+                    fontSize: 11,
+                    letterSpacing: 0.5,
                 },
                 headerShown: false,
             }}
@@ -29,28 +39,45 @@ const TabLayout = () => {
                 name="index"
                 options={{
                     title: "Social",
-                    tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="whatsapp" size={size} color={color} />,
+                    tabBarIcon: ({ color, size, focused }) => (
+                        <View style={focused ? styles.activeIconContainer : undefined}>
+                            <MaterialCommunityIcons name="whatsapp" size={size} color={color} />
+                        </View>
+                    ),
+                }}
+            />
+            <Tabs.Screen
+                name="generator"
+                options={{
+                    title: "Generator",
+                    tabBarIcon: ({ color, size, focused }) => (
+                        <View style={focused ? styles.activeIconContainer : undefined}>
+                            <MaterialCommunityIcons name="qrcode-plus" size={size} color={color} />
+                        </View>
+                    ),
                 }}
             />
             <Tabs.Screen
                 name="scanner"
                 options={{
                     title: "Scanner",
-                    tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="qrcode-scan" size={size} color={color} />,
+                    tabBarIcon: ({ color, size, focused }) => (
+                        <View style={focused ? styles.activeIconContainer : undefined}>
+                            <MaterialCommunityIcons name="qrcode-scan" size={size} color={color} />
+                        </View>
+                    ),
                 }}
             />
-
-            <Tabs.Screen
-                name="generator"
-                options={{
-                    title: "Generator",
-                    tabBarIcon: ({ color, size }) => <MaterialCommunityIcons name="qrcode-plus" size={size} color={color} />,
-                }}
-            />
-
         </Tabs>
-
     )
 }
+
+const styles = StyleSheet.create({
+    activeIconContainer: {
+        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+        padding: 8,
+        borderRadius: 12,
+    },
+});
 
 export default TabLayout

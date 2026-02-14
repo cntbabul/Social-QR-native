@@ -1,6 +1,7 @@
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as FileSystem from 'expo-file-system/legacy';
+import { LinearGradient } from 'expo-linear-gradient';
 import * as Sharing from 'expo-sharing';
 import React, { useRef, useState } from 'react';
 import { Alert, Keyboard, ScrollView, StatusBar, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from 'react-native';
@@ -14,6 +15,7 @@ const Generator = () => {
     const [qrValue, setQrValue] = useState('');
     const qrRef = useRef<any>(null);
     const captureViewRef = useRef<View>(null);
+    const scrollViewRef = useRef<ScrollView>(null);
 
     const pasteFromClipboard = async () => {
         const content = await Clipboard.getStringAsync();
@@ -29,6 +31,11 @@ const Generator = () => {
         }
         setQrValue(text);
         Keyboard.dismiss();
+
+        // Auto-scroll to the bottom where QR code appears
+        setTimeout(() => {
+            scrollViewRef.current?.scrollToEnd({ animated: true });
+        }, 100);
     };
 
     const downloadQRCode = async () => {
@@ -55,152 +62,218 @@ const Generator = () => {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
-            <StatusBar barStyle="light-content" backgroundColor="#121212" />
-
-            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-                <View style={{ flex: 1 }}>
-                    <ScrollView
-                        style={styles.scrollView}
-                        contentContainerStyle={styles.scrollContent}
-                        showsVerticalScrollIndicator={false}
-                        keyboardShouldPersistTaps="handled"
-                    >
-                        <Text style={styles.headerTitle}>QR Generator</Text>
-                        <Text style={styles.headerSubtitle}>Create custom QR codes instantly</Text>
-
-                        <View style={styles.card}>
-                            <View style={styles.inputContainer}>
-                                <View style={styles.labelRow}>
-                                    <Text style={styles.label}>CONTENT</Text>
-                                    <TouchableOpacity onPress={pasteFromClipboard} style={styles.pasteButton}>
-                                        <MaterialCommunityIcons name="content-paste" size={14} color="#4A90E2" />
-                                        <Text style={styles.pasteText}>Paste</Text>
-                                    </TouchableOpacity>
-                                </View>
-
-                                <View style={styles.inputWrapper}>
-                                    <TextInput
-                                        style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
-                                        placeholder="Enter text, URL, or message..."
-                                        placeholderTextColor="#555"
-                                        value={text}
-                                        onChangeText={setText}
-                                        multiline
-                                        numberOfLines={3}
-                                        blurOnSubmit
-                                    />
-                                    {text.length > 0 && (
-                                        <TouchableOpacity onPress={() => setText('')} style={styles.clearButton}>
-                                            <MaterialCommunityIcons name="close-circle" size={20} color="#555" />
-                                        </TouchableOpacity>
-                                    )}
-                                </View>
+        <View style={styles.container}>
+            <LinearGradient
+                colors={['#0F0C29', '#302B63', '#24243E']}
+                style={StyleSheet.absoluteFillObject}
+            />
+            <StatusBar barStyle="light-content" />
+            <SafeAreaView style={{ flex: 1 }}>
+                <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+                    <View style={{ flex: 1 }}>
+                        <ScrollView
+                            ref={scrollViewRef}
+                            style={{ flex: 1 }}
+                            contentContainerStyle={styles.scrollContent}
+                            showsVerticalScrollIndicator={false}
+                            keyboardShouldPersistTaps="handled"
+                            keyboardDismissMode="on-drag"
+                        >
+                            {/* Header */}
+                            <View style={styles.headerContainer}>
+                                <LinearGradient
+                                    colors={['#667EEA', '#764BA2', '#F093FB']}
+                                    start={{ x: 0, y: 0 }}
+                                    end={{ x: 1, y: 1 }}
+                                    style={styles.titleGradient}
+                                >
+                                    <Text style={styles.title}>QR Generator</Text>
+                                </LinearGradient>
+                                <Text style={styles.subtitle}>Create custom QR codes instantly</Text>
                             </View>
 
-                            <View style={styles.inputContainer}>
-                                <Text style={styles.label}>CUSTOM MESSAGE (OPTIONAL)</Text>
-                                <View style={styles.inputWrapper}>
-                                    <TextInput
-                                        style={styles.inputSingle}
-                                        placeholder="Add a title or label..."
-                                        placeholderTextColor="#555"
-                                        value={customMessage}
-                                        onChangeText={setCustomMessage}
-                                    />
-                                </View>
-                            </View>
+                            {/* Input Card */}
+                            <View style={styles.card}>
+                                <View style={styles.cardGlass} />
+                                <View style={styles.cardContent}>
+                                    <View style={styles.inputContainer}>
+                                        <View style={styles.labelRow}>
+                                            <Text style={styles.label}>
+                                                <MaterialCommunityIcons name="text" size={14} color="#A0A0FF" /> CONTENT
+                                            </Text>
+                                            <TouchableOpacity onPress={pasteFromClipboard} style={styles.pasteButton}>
+                                                <MaterialCommunityIcons name="content-paste" size={14} color="#667EEA" />
+                                                <Text style={styles.pasteText}>Paste</Text>
+                                            </TouchableOpacity>
+                                        </View>
 
-                            <TouchableOpacity
-                                onPress={handleGenerate}
-                                style={styles.generateButton}
-                                activeOpacity={0.8}
-                            >
-                                <MaterialCommunityIcons name="qrcode-scan" size={22} color="#FFF" />
-                                <Text style={styles.buttonText}>Generate Code</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {qrValue ? (
-                            <View style={styles.resultSection}>
-                                <View style={styles.divider} />
-
-                                <View style={styles.resultCard}>
-                                    <View ref={captureViewRef} style={styles.qrCaptureContainer} collapsable={false}>
-                                        {customMessage ? (
-                                            <Text style={styles.customMessageText}>{customMessage}</Text>
-                                        ) : null}
-                                        <QRCode
-                                            value={qrValue}
-                                            size={220}
-                                            backgroundColor="white"
-                                            color="black"
-                                            getRef={(ref) => (qrRef.current = ref)}
-                                        />
+                                        <View style={styles.inputWrapper}>
+                                            <TextInput
+                                                style={[styles.input, { height: 100, textAlignVertical: 'top', paddingTop: 12 }]}
+                                                placeholder="Enter text, URL, or message..."
+                                                placeholderTextColor="#888"
+                                                value={text}
+                                                onChangeText={setText}
+                                                multiline
+                                                numberOfLines={4}
+                                                blurOnSubmit
+                                            />
+                                            {text.length > 0 && (
+                                                <TouchableOpacity onPress={() => setText('')} style={styles.clearButton}>
+                                                    <MaterialCommunityIcons name="close-circle" size={20} color="#888" />
+                                                </TouchableOpacity>
+                                            )}
+                                        </View>
                                     </View>
 
-                                    <Text style={styles.successText}>QR Code Ready!</Text>
+                                    <View style={styles.inputContainer}>
+                                        <Text style={styles.label}>
+                                            <MaterialCommunityIcons name="message-text" size={14} color="#F093FB" /> CUSTOM MESSAGE (OPTIONAL)
+                                        </Text>
+                                        <View style={styles.inputWrapper}>
+                                            <TextInput
+                                                style={styles.inputSingle}
+                                                placeholder="Add a title or label..."
+                                                placeholderTextColor="#888"
+                                                value={customMessage}
+                                                onChangeText={setCustomMessage}
+                                            />
+                                        </View>
+                                    </View>
 
                                     <TouchableOpacity
-                                        onPress={downloadQRCode}
-                                        style={styles.shareButton}
-                                        activeOpacity={0.8}
+                                        onPress={handleGenerate}
+                                        activeOpacity={0.9}
                                     >
-                                        <MaterialCommunityIcons name="share-variant" size={20} color="#FFF" />
-                                        <Text style={styles.shareButtonText}>Share QR Image</Text>
+                                        <LinearGradient
+                                            colors={['#667EEA', '#764BA2']}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 1 }}
+                                            style={styles.generateButton}
+                                        >
+                                            <MaterialCommunityIcons name="qrcode-scan" size={24} color="#FFF" />
+                                            <Text style={styles.buttonText}>Generate Code</Text>
+                                        </LinearGradient>
                                     </TouchableOpacity>
                                 </View>
                             </View>
-                        ) : (
-                            <View style={styles.placeholderContainer}>
-                                <MaterialCommunityIcons name="qrcode-edit" size={60} color="#333" />
-                                <Text style={styles.placeholderText}>Your generated QR will appear here</Text>
-                            </View>
-                        )}
 
-                        <View style={{ height: 40 }} />
-                    </ScrollView>
-                </View>
-            </TouchableWithoutFeedback>
-        </SafeAreaView>
+                            {/* QR Code Result */}
+                            {qrValue ? (
+                                <View style={styles.resultCard}>
+                                    <View style={styles.cardGlass} />
+                                    <View style={styles.cardContent}>
+                                        <View ref={captureViewRef} style={styles.qrCaptureContainer} collapsable={false}>
+                                            {customMessage ? (
+                                                <Text style={styles.customMessageText}>{customMessage}</Text>
+                                            ) : null}
+                                            <View style={styles.qrWrapper}>
+                                                <QRCode
+                                                    value={qrValue}
+                                                    size={220}
+                                                    backgroundColor="white"
+                                                    color="black"
+                                                    getRef={(ref) => (qrRef.current = ref)}
+                                                />
+                                            </View>
+                                        </View>
+
+                                        <LinearGradient
+                                            colors={['#667EEA', '#764BA2']}
+                                            start={{ x: 0, y: 0 }}
+                                            end={{ x: 1, y: 0 }}
+                                            style={styles.qrLabelGradient}
+                                        >
+                                            <MaterialCommunityIcons name="check-circle" size={20} color="#FFF" />
+                                            <Text style={styles.qrLabel}>QR Code Ready!</Text>
+                                        </LinearGradient>
+
+                                        <TouchableOpacity
+                                            onPress={downloadQRCode}
+                                            activeOpacity={0.9}
+                                            style={{ width: '100%' }}
+                                        >
+                                            <LinearGradient
+                                                colors={['#F093FB', '#F5576C']}
+                                                start={{ x: 0, y: 0 }}
+                                                end={{ x: 1, y: 1 }}
+                                                style={styles.shareButton}
+                                            >
+                                                <MaterialCommunityIcons name="share-variant" size={22} color="#FFF" />
+                                                <Text style={styles.shareButtonText}>Share QR Image</Text>
+                                            </LinearGradient>
+                                        </TouchableOpacity>
+                                    </View>
+                                </View>
+                            ) : (
+                                <View style={styles.placeholderContainer}>
+                                    <View style={styles.placeholderGlow}>
+                                        <MaterialCommunityIcons name="qrcode-edit" size={100} color="#667EEA" />
+                                    </View>
+                                    <Text style={styles.placeholderText}>Your generated QR will appear here</Text>
+                                    <Text style={styles.placeholderSubtext}>Enter content above to create</Text>
+                                </View>
+                            )}
+
+                            <View style={{ height: 40 }} />
+                        </ScrollView>
+                    </View>
+                </TouchableWithoutFeedback>
+            </SafeAreaView>
+        </View>
     );
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#121212',
-    },
-    scrollView: {
-        flex: 1,
     },
     scrollContent: {
-        padding: 24,
+        padding: 20,
+        paddingBottom: 40,
     },
-    headerTitle: {
+    headerContainer: {
+        alignItems: 'center',
+        marginBottom: 24,
+        marginTop: 10,
+    },
+    titleGradient: {
+        paddingHorizontal: 24,
+        paddingVertical: 12,
+        borderRadius: 20,
+        marginBottom: 12,
+    },
+    title: {
         fontSize: 32,
         fontWeight: '800',
         color: '#FFFFFF',
-        marginBottom: 8,
+        textAlign: 'center',
         letterSpacing: 0.5,
+        textShadowColor: 'rgba(0, 0, 0, 0.3)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 4,
     },
-    headerSubtitle: {
-        fontSize: 16,
-        color: '#888',
-        marginBottom: 30,
+    subtitle: {
+        fontSize: 15,
+        color: '#B8B8D1',
+        letterSpacing: 0.8,
         fontWeight: '500',
     },
     card: {
-        backgroundColor: '#1E1E1E',
+        width: '100%',
         borderRadius: 24,
-        padding: 24,
+        marginBottom: 24,
+        overflow: 'hidden',
+    },
+    cardGlass: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(255, 255, 255, 0.05)',
         borderWidth: 1,
-        borderColor: '#333',
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 8,
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderRadius: 24,
+    },
+    cardContent: {
+        padding: 24,
     },
     inputContainer: {
         marginBottom: 20,
@@ -214,45 +287,46 @@ const styles = StyleSheet.create({
     label: {
         fontSize: 12,
         fontWeight: '700',
-        color: '#AAA',
-        letterSpacing: 1,
+        color: '#B8B8D1',
+        letterSpacing: 1.2,
         textTransform: 'uppercase',
     },
     pasteButton: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(74, 144, 226, 0.15)',
-        paddingHorizontal: 10,
-        paddingVertical: 4,
-        borderRadius: 8,
+        backgroundColor: 'rgba(102, 126, 234, 0.2)',
+        paddingHorizontal: 12,
+        paddingVertical: 6,
+        borderRadius: 10,
+        gap: 6,
     },
     pasteText: {
-        color: '#4A90E2',
+        color: '#667EEA',
         fontSize: 12,
-        fontWeight: '600',
-        marginLeft: 4,
+        fontWeight: '700',
     },
     inputWrapper: {
         flexDirection: 'row',
         alignItems: 'flex-start',
-        backgroundColor: '#2A2A2A',
-        borderRadius: 16,
+        borderWidth: 1.5,
+        borderColor: 'rgba(255, 255, 255, 0.15)',
+        borderRadius: 14,
+        backgroundColor: 'rgba(255, 255, 255, 0.08)',
         paddingHorizontal: 16,
-        paddingVertical: 4,
-        borderWidth: 1,
-        borderColor: '#333',
     },
     input: {
         flex: 1,
         fontSize: 16,
         color: '#FFFFFF',
+        fontWeight: '500',
         paddingVertical: 12,
     },
     inputSingle: {
         flex: 1,
-        height: 50,
+        height: 54,
         fontSize: 16,
         color: '#FFFFFF',
+        fontWeight: '500',
     },
     clearButton: {
         padding: 8,
@@ -260,97 +334,119 @@ const styles = StyleSheet.create({
     },
     generateButton: {
         flexDirection: 'row',
-        backgroundColor: '#4A90E2',
         paddingVertical: 18,
         borderRadius: 16,
         alignItems: 'center',
         justifyContent: 'center',
         gap: 12,
-        marginTop: 10,
-        shadowColor: "#4A90E2",
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 6,
+        shadowColor: '#667EEA',
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.4,
+        shadowRadius: 12,
+        elevation: 10,
+        marginTop: 8,
     },
     buttonText: {
         color: '#FFFFFF',
         fontSize: 18,
-        fontWeight: 'bold',
+        fontWeight: '700',
         letterSpacing: 0.5,
-    },
-    resultSection: {
-        alignItems: 'center',
-        width: '100%',
-        marginTop: 30,
-    },
-    divider: {
-        height: 1,
-        width: '100%',
-        backgroundColor: '#333',
-        marginBottom: 30,
     },
     resultCard: {
         width: '100%',
-        alignItems: 'center',
-        backgroundColor: '#1E1E1E',
         borderRadius: 24,
-        padding: 24,
-        borderWidth: 1,
-        borderColor: '#333',
+        overflow: 'hidden',
+        marginBottom: 24,
     },
     qrCaptureContainer: {
-        padding: 24,
+        padding: 28,
         backgroundColor: '#FFFFFF',
         borderRadius: 20,
-        marginBottom: 20,
         alignItems: 'center',
-        minWidth: 260,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 2 },
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 3,
+        shadowRadius: 8,
+        elevation: 4,
+    },
+    qrWrapper: {
+        padding: 12,
+        backgroundColor: '#FFF',
+        borderRadius: 16,
+        shadowColor: '#667EEA',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.2,
+        shadowRadius: 8,
     },
     customMessageText: {
         marginBottom: 16,
         fontSize: 18,
-        fontWeight: 'bold',
-        color: '#000',
+        fontWeight: '700',
+        color: '#1A1A2E',
         textAlign: 'center',
+        letterSpacing: 0.3,
     },
-    successText: {
-        fontSize: 18,
-        color: '#FFF',
-        marginBottom: 20,
-        fontWeight: '600',
+    qrLabelGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 8,
+        paddingVertical: 12,
+        paddingHorizontal: 20,
+        borderRadius: 12,
+        marginVertical: 20,
+    },
+    qrLabel: {
+        fontSize: 16,
+        color: '#FFFFFF',
+        fontWeight: '700',
+        letterSpacing: 0.5,
     },
     shareButton: {
         flexDirection: 'row',
-        backgroundColor: '#333',
-        paddingVertical: 14,
-        paddingHorizontal: 30,
+        paddingVertical: 16,
         borderRadius: 14,
         alignItems: 'center',
+        justifyContent: 'center',
         gap: 10,
-        borderWidth: 1,
-        borderColor: '#444',
+        shadowColor: '#F093FB',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.3,
+        shadowRadius: 8,
+        elevation: 6,
     },
     shareButtonText: {
         color: '#FFF',
         fontSize: 16,
-        fontWeight: '600',
+        fontWeight: '700',
+        letterSpacing: 0.5,
     },
     placeholderContainer: {
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: 60,
-        opacity: 0.4,
+        paddingVertical: 60,
+        paddingHorizontal: 40,
+    },
+    placeholderGlow: {
+        padding: 30,
+        borderRadius: 100,
+        backgroundColor: 'rgba(102, 126, 234, 0.1)',
+        marginBottom: 24,
     },
     placeholderText: {
         marginTop: 16,
-        fontSize: 16,
-        color: '#8E8E93',
+        fontSize: 17,
+        color: '#B8B8D1',
+        fontWeight: '600',
+        textAlign: 'center',
+        letterSpacing: 0.3,
+    },
+    placeholderSubtext: {
+        marginTop: 8,
+        fontSize: 14,
+        color: '#8E8EA0',
+        fontWeight: '500',
+        textAlign: 'center',
     },
 });
 
